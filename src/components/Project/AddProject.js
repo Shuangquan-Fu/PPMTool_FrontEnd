@@ -23,15 +23,14 @@ class AddProject extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     //该方法内禁止访问this
     if (nextProps.error !== prevState.error) {
-      console.log('changing');
       //通过对比nextProps和prevState，返回一个用于更新状态的对象
-      console.log(nextProps.error);
+
       return {
         error: nextProps.error,
       };
     }
     //不需要更新状态，返回null
-    console.log('not working');
+
     return null;
   }
 
