@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { getProject } from '../../actions/projectActions';
+import { getProject, createProject } from '../../actions/projectActions';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { classnames } from 'classnames';
+import classnames from 'classnames';
 
 class UpdateProject extends Component {
+  //set state
   constructor() {
     super();
+
     this.state = {
       id: '',
       projectName: '',
@@ -14,76 +16,148 @@ class UpdateProject extends Component {
       description: '',
       start_date: '',
       end_date: '',
+      error: {},
     };
+    this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.error) {
+      this.setState({ error: nextProps.error });
+    }
+    const {
+      id,
+      projectName,
+      projectIdentifier,
+      description,
+      start_date,
+      end_date,
+    } = nextProps.project;
+    this.setState({
+      id,
+      projectName,
+      projectIdentifier,
+      description,
+      start_date,
+      end_date,
+    });
+  }
+
   componentDidMount() {
     const { id } = this.props.match.params;
     this.props.getProject(id, this.props.history);
   }
-  static getDerivedStateFromProps(nextProps, prevState) {
-    //该方法内禁止访问this
-    if (nextProps.projectName !== prevState.projectName) {
-      return nextProps.project;
-    }
-    return null;
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
   }
+
+  onSubmit(e) {
+    e.preventDefault();
+
+    const updateProject = {
+      id: this.state.id,
+      projectName: this.state.projectName,
+      projectIdentifier: this.state.projectIdentifier,
+      description: this.state.description,
+      start_date: this.state.start_date,
+      end_date: this.state.end_date,
+    };
+
+    this.props.createProject(updateProject, this.props.history);
+  }
+
   render() {
+    const { error } = this.state;
+    console.log(error);
     return (
-      <div className='project'>
-        <div className='container'>
-          <div className='row'>
-            <div className='col-md-8 m-auto'>
-              <h5 className='display-4 text-center'>Update Project form</h5>
-              <hr />
-              <form>
-                <div className='form-group'>
-                  <input
-                    type='text'
-                    className='form-control form-control-lg '
-                    placeholder='Project Name'
-                    value={this.state.projectName}
-                  />
-                </div>
-                <div className='form-group'>
-                  <input
-                    type='text'
-                    className='form-control form-control-lg'
-                    placeholder='Unique Project ID'
-                    value={this.state.projectIdentifier}
-                  />
-                </div>
+      <div>
+        <div className='project'>
+          <div className='container'>
+            <div className='row'>
+              <div className='col-md-8 m-auto'>
+                <h5 className='display-4 text-center'>Create Project form</h5>
+                <hr />
+                <form onSubmit={this.onSubmit}>
+                  <div className='form-group'>
+                    <input
+                      type='text'
+                      className={classnames('form-control form-control-lg ', {
+                        'is-invalid': error.projectName,
+                      })}
+                      placeholder='Project Name'
+                      name='projectName'
+                      value={this.state.projectName}
+                      onChange={this.onChange}
+                    />
+                    {error.projectName && (
+                      <div className='invalid-feedback'>
+                        {error.projectName}
+                      </div>
+                    )}
+                  </div>
+                  <div className='form-group'>
+                    <input
+                      type='text'
+                      className={classnames('form-control form-control-lg ', {
+                        'is-invalid': error.projectIdentifier,
+                      })}
+                      placeholder='Unique Project ID'
+                      name='projectIdentifier'
+                      value={this.state.projectIdentifier}
+                      onChange={this.onChange}
+                      disabled
+                    />
+                    {error.projectIdentifier && (
+                      <div className='invalid-feedback'>
+                        {error.projectIdentifier}
+                      </div>
+                    )}
+                  </div>
+                  <div className='form-group'>
+                    <textarea
+                      className={classnames('form-control form-control-lg ', {
+                        'is-invalid': error.description,
+                      })}
+                      placeholder='Project Description'
+                      name='description'
+                      value={this.state.description}
+                      onChange={this.onChange}
+                    />
+                    {error.description && (
+                      <div className='invalid-feedback'>
+                        {error.description}
+                      </div>
+                    )}
+                  </div>
+                  <h6>Start Date</h6>
+                  <div className='form-group'>
+                    <input
+                      type='date'
+                      className='form-control form-control-lg'
+                      name='start_date'
+                      value={this.state.start_date}
+                      onChange={this.onChange}
+                    />
+                  </div>
+                  <h6>Estimated End Date</h6>
+                  <div className='form-group'>
+                    <input
+                      type='date'
+                      className='form-control form-control-lg'
+                      name='end_date'
+                      value={this.state.end_date}
+                      onChange={this.onChange}
+                    />
+                  </div>
 
-                <div className='form-group'>
-                  <textarea
-                    className='form-control form-control-lg'
-                    placeholder='Project Description'
-                    value={this.state.description}
-                  ></textarea>
-                </div>
-                <h6>Start Date</h6>
-                <div className='form-group'>
                   <input
-                    type='date'
-                    className='form-control form-control-lg'
-                    name='start_date'
-                    value={this.state.start_date}
+                    type='submit'
+                    className='btn btn-primary btn-block mt-4'
                   />
-                </div>
-                <h6>Estimated End Date</h6>
-                <div className='form-group'>
-                  <input
-                    type='date'
-                    className='form-control form-control-lg'
-                    name='end_date'
-                    value={this.state.end_date}
-                  />
-                </div>
-
-                <input
-                  type='submit'
-                  className='btn btn-primary btn-block mt-4'
-                />
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>
@@ -91,11 +165,19 @@ class UpdateProject extends Component {
     );
   }
 }
+
 UpdateProject.propTypes = {
   getProject: PropTypes.func.isRequired,
+  createProject: PropTypes.func.isRequired,
   project: PropTypes.object.isRequired,
+  error: PropTypes.object.isRequired,
 };
-const nextState = (state) => ({
+
+const mapStateToProps = (state) => ({
   project: state.project.project,
+  error: state.error,
 });
-export default connect(nextState, { getProject })(UpdateProject);
+
+export default connect(mapStateToProps, { getProject, createProject })(
+  UpdateProject
+);
