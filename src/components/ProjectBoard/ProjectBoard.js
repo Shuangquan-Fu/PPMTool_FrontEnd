@@ -1,9 +1,58 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Backlog from './Backlog';
+import { connect } from 'react-redux';
+import { getProjectTask } from '../../actions/projectTaskActions';
 
 class ProjectBoard extends Component {
+  constructor() {
+    super();
+    this.state = {
+      error: {},
+    };
+  }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    //该方法内禁止访问this
+    if (nextProps.error !== prevState.error) {
+      //通过对比nextProps和prevState，返回一个用于更新状态的对象
+
+      return {
+        error: nextProps.error,
+      };
+    }
+    //不需要更新状态，返回null
+
+    return null;
+  }
+  componentDidMount() {
+    this.props.getProjectTask(this.props.match.params.id);
+  }
   render() {
     const { id } = this.props.match.params;
+    const { project_tasks } = this.props.project_task;
+    const { error } = this.state;
+    let content;
+
+    const boardContentAgrithom = (error, project_tasks) => {
+      if (project_tasks.length < 1) {
+        if (error.projectNotFound) {
+          return (
+            <div className='alert alert-danger text-center' role='alert'>
+              {error.projectNotFound}
+            </div>
+          );
+        } else {
+          return (
+            <div className='alert alert-info text-center' role='alert'>
+              No Project Tasks on this board
+            </div>
+          );
+        }
+      } else {
+        return <Backlog id={id} project_task={project_tasks}></Backlog>;
+      }
+    };
+    content = boardContentAgrithom(error, project_tasks);
     return (
       <div className='container'>
         <Link to={`/addProjectTask/${id}`} className='btn btn-primary mb-3'>
@@ -11,52 +60,14 @@ class ProjectBoard extends Component {
         </Link>
         <br />
         <hr />
-
-        <div className='container'>
-          <div className='row'>
-            <div className='col-md-4'>
-              <div className='card text-center mb-2'>
-                <div className='card-header bg-secondary text-white'>
-                  <h3>TO DO</h3>
-                </div>
-              </div>
-
-              <div className='card mb-1 bg-light'>
-                <div className='card-header text-primary'>
-                  ID: projectSequence -- Priority: priorityString
-                </div>
-                <div className='card-body bg-light'>
-                  <h5 className='card-title'>project_task.summary</h5>
-                  <p className='card-text text-truncate '>
-                    project_task.acceptanceCriteria
-                  </p>
-                  <a href='' className='btn btn-primary'>
-                    View / Update
-                  </a>
-
-                  <button className='btn btn-danger ml-4'>Delete</button>
-                </div>
-              </div>
-            </div>
-            <div className='col-md-4'>
-              <div className='card text-center mb-2'>
-                <div className='card-header bg-primary text-white'>
-                  <h3>In Progress</h3>
-                </div>
-              </div>
-            </div>
-            <div className='col-md-4'>
-              <div className='card text-center mb-2'>
-                <div className='card-header bg-success text-white'>
-                  <h3>Done</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {content}
       </div>
     );
   }
 }
+const mapped = (state) => ({
+  project_task: state.project_task,
+  error: state.error,
+});
 
-export default ProjectBoard;
+export default connect(mapped, { getProjectTask })(ProjectBoard);

@@ -26,3 +26,19 @@ export const createProjectTask = (projectTask, history, id) => async (
     });
   }
 };
+
+export const getProjectTask = (id) => async (dispatch) => {
+  try {
+    const res = await axios.get(`/api/backlog/${id}`);
+    console.log(res.data);
+    dispatch({
+      type: GET_BACKLOG,
+      payload: res.data,
+    });
+  } catch (err) {
+    dispatch({
+      type: GET_ERRORS,
+      test: err.response.data,
+    });
+  }
+};

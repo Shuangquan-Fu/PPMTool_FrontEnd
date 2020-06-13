@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { createProjectTask } from '../../../actions/projectTaskActions';
+import classnames from 'classnames';
 class AddProjectTask extends Component {
   constructor() {
     super();
@@ -15,6 +16,20 @@ class AddProjectTask extends Component {
     };
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    //该方法内禁止访问this
+    if (nextProps.error !== prevState.error) {
+      //通过对比nextProps和prevState，返回一个用于更新状态的对象
+
+      return {
+        error: nextProps.error,
+      };
+    }
+    //不需要更新状态，返回null
+
+    return null;
   }
 
   onChange(e) {
@@ -38,6 +53,7 @@ class AddProjectTask extends Component {
   }
 
   render() {
+    const { error } = this.state;
     const { id } = this.props.match.params.id;
     return (
       <div className='add-PBI'>
@@ -53,11 +69,16 @@ class AddProjectTask extends Component {
                 <div className='form-group'>
                   <input
                     type='text'
-                    className='form-control form-control-lg'
+                    className={classnames('form-control form-control-lg ', {
+                      'is-invalid': error.summary,
+                    })}
                     name='summary'
                     placeholder='Project Task summary'
                     onChange={this.onChange}
                   />
+                  {error.summary && (
+                    <div className='invalid-feedback'>{error.summary}</div>
+                  )}
                 </div>
                 <div className='form-group'>
                   <textarea
@@ -114,4 +135,9 @@ class AddProjectTask extends Component {
     );
   }
 }
-export default connect(null, { createProjectTask })(AddProjectTask);
+
+const mapStateToProps = (state) => ({
+  error: state.error,
+});
+
+export default connect(mapStateToProps, { createProjectTask })(AddProjectTask);

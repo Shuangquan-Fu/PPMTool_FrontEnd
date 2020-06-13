@@ -10,6 +10,7 @@ import store from './sotre';
 import UpdateProject from './components/Project/UpdateProject';
 import ProjectBoard from './components/ProjectBoard/ProjectBoard';
 import AddProjectTask from './components/ProjectBoard/ProjectTasks/AddProjectTask';
+import UpdateProjectTask from './components/ProjectBoard/ProjectTasks/UpdateProjectTask';
 
 function App() {
   return (
@@ -33,6 +34,11 @@ function App() {
             exact
             path='/addProjectTask/:id'
             component={AddProjectTask}
+          ></Route>
+          <Route
+            exact
+            path='/updateTask/:id'
+            component={UpdateProjectTask}
           ></Route>
         </div>
       </Router>
