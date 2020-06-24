@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { deleteProjectTask } from '../../../actions/projectTaskActions';
 
 class ProjectTaskItem extends Component {
+  onDeleteClick(backlog_id, pt_id) {
+    this.props.deleteProjectTask(backlog_id, pt_id);
+  }
   render() {
     const { project_task } = this.props;
     let priorityString;
@@ -37,10 +42,19 @@ class ProjectTaskItem extends Component {
             View / Update
           </Link>
 
-          <button className='btn btn-danger ml-4'>Delete</button>
+          <button
+            onClick={this.onDeleteClick.bind(
+              this,
+              project_task.projectIdentifier,
+              project_task.projectSequence
+            )}
+            className='btn btn-danger ml-4'
+          >
+            Delete
+          </button>
         </div>
       </div>
     );
   }
 }
-export default ProjectTaskItem;
+export default connect(null, { deleteProjectTask })(ProjectTaskItem);
